@@ -28,12 +28,57 @@ class MusicList extends StatefulWidget {
 class _MusicListState extends State<MusicList> {
   @override
   Widget build(BuildContext context) {
+    void _dismissDialog() {
+      Navigator.pop(context);
+    }
+
+    void _showMaterialDialog() {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Add a track'),
+              content: Column(
+                children: [Text("Want to add a track to your playlist?")],
+              ),
+              actions: <Widget>[
+                TextButton(
+                    onPressed: () {
+                      _dismissDialog();
+                    },
+                    child: Text('No')),
+                TextButton(
+                  onPressed: () {
+                    print('HelloWorld!');
+                    _dismissDialog();
+                  },
+                  child: Text('Yes'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    _dismissDialog();
+                  },
+                  child: Text('Add by URL'),
+                )
+              ],
+            );
+          });
+    }
+
     return Expanded(
-      child: ListView.builder(
-          itemCount: context.read<PlayState>().tracks.length,
-          itemBuilder: (BuildContext, int index) {
-            return Track(index: index);
-          }),
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _showMaterialDialog();
+          },
+          child: Icon(Icons.add),
+        ),
+        body: ListView.builder(
+            itemCount: context.read<PlayState>().tracks.length,
+            itemBuilder: (BuildContext, int index) {
+              return Track(index: index);
+            }),
+      ),
     );
   }
 }
@@ -47,34 +92,43 @@ class Track extends StatefulWidget {
 }
 
 class _TrackState extends State<Track> {
-  var isPlaying = false;
+  bool isPlaying = false;
   @override
   Widget build(BuildContext context) {
+    var sequence = context.read<PlayState>().audioPlayer.sequenceState;
     final playingStream = context.read<PlayState>().audioPlayer.playingStream;
     playingStream.listen((event) {
       setState(() {
-        if (context.read<PlayState>().tracks[widget.index]["title"]! ==
-                context
-                    .read<PlayState>()
-                    .audioPlayer
-                    .sequenceState
-                    ?.currentSource
-                    ?.tag
-                    .title! &&
-            event)
+        if (sequence?.currentSource?.tag.id! ==
+            context.read<PlayState>().tracks[widget.index]["assetOrUrl"]!)
           isPlaying = true;
         else
           isPlaying = false;
       });
     });
+    void _onTap() async {
+      // context.read<PlayState>().play(
+      //   context.read<PlayState>().tracks[widget.index]["assetOrUrl"]!,
+      //   true,
+      // );
+      // print("index:${widget.index}");
+      // print(
+      //     "currentIndex: ${context.read<PlayState>().audioPlayer.sequenceState?.currentIndex}");
+      int? currentIndex = sequence?.currentIndex as int;
+      context.read<PlayState>().audioPlayer.pause();
+      await context
+          .read<PlayState>()
+          .audioPlayer
+          .seek(Duration.zero, index: widget.index);
+      // print(sequence?.currentSource?.tag);
+      context.read<PlayState>().audioPlayer.play();
+    }
+
+    // print(context.read<PlayState>().audioPlayer.sequenceState?.currentIndex);
+
     return Card(
         child: InkWell(
-      onTap: () {
-        context.read<PlayState>().play(
-              context.read<PlayState>().tracks[widget.index]["assetOrUrl"]!,
-              true,
-            );
-      },
+      onTap: _onTap,
       child: Container(
           padding: const EdgeInsets.all(30.0),
           child: Row(
@@ -89,9 +143,7 @@ class _TrackState extends State<Track> {
                 ],
                 crossAxisAlignment: CrossAxisAlignment.start,
               ),
-              isPlaying
-                  ? const Icon(Icons.pause)
-                  : const Icon(Icons.play_arrow),
+              isPlaying ? const Icon(Icons.play_arrow) : Container(),
             ],
           )),
     ));

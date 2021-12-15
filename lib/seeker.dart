@@ -27,7 +27,7 @@ class _SeekerState extends State<Seeker> {
     });
     durationStream.listen((event) {
       setState(() {
-        duration = event!.inSeconds;
+        duration = event?.inSeconds ?? 0;
       });
     });
     bufferedStream.listen((event) {
@@ -41,14 +41,14 @@ class _SeekerState extends State<Seeker> {
           progress: Duration(seconds: position ?? 0),
           // context.read<PlayState>().audioPlayer.positionStream
           total: Duration(seconds: duration ?? 0),
-          onSeek: context.read<PlayState>().playing
-              ? (value) {
-                  context
-                      .read<PlayState>()
-                      .audioPlayer
-                      .seek(Duration(seconds: value.inSeconds));
-                }
-              : null,
+          onSeek: (value) {
+            if (context.read<PlayState>().playing) {
+              context
+                  .read<PlayState>()
+                  .audioPlayer
+                  .seek(Duration(seconds: value.inSeconds));
+            }
+          },
           buffered: Duration(seconds: buffered ?? 0),
         ));
   }

@@ -39,6 +39,7 @@ dependencies:
   audio_video_progress_bar: ^0.10.0
   audio_session: ^0.1.6+1
   just_audio_background: ^0.0.1-beta.2
+  file_picker: ^4.2.7
 
 dev_dependencies:
   flutter_test:

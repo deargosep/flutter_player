@@ -28,10 +28,13 @@ class _PlayerState extends State<Player> {
       context.read<PlayState>().audioPlayer.seekToPrevious();
     }
 
-    void _onPlay() {
-      context
-          .read<PlayState>()
-          .play(context.read<PlayState>().currentAudio, false);
+    void _onPlay() async {
+      // if (context.read<PlayState>().audioPlayer.playing) {
+      await context.read<PlayState>().audioPlayer.play();
+      // } else {
+      await context.read<PlayState>().audioPlayer.pause();
+      // }
+      // .play(context.read<PlayState>().currentAudio, false);
     }
 
     void _onNext() {

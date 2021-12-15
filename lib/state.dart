@@ -20,8 +20,9 @@ class PlayState with ChangeNotifier {
   String _currentAudio = "";
   String _currentTitle = "";
   int _lastPosition = 0;
-  var audioPlayer = AudioPlayer();
   late ConcatenatingAudioSource _playlist;
+  var audioPlayer = AudioPlayer();
+  ConcatenatingAudioSource get playlist => _playlist;
   bool get hasNext => audioPlayer.hasNext;
   bool get hasPrev => audioPlayer.hasPrevious;
   bool get playing => audioPlayer.playerState.playing;
@@ -91,13 +92,12 @@ class PlayState with ChangeNotifier {
       return ClippingAudioSource(
           child: AudioSource.uri(Uri.parse(el["assetOrUrl"]!)),
           tag: MediaItem(
-            id: el["assetOrUrl"]!,
-            // album: "Science Friday",
-            title: el["title"]!,
-            // artUri: Uri.parse(
-            //     "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
-          ));
+              id: el["assetOrUrl"]!,
+              title: el["title"]!,
+              displayTitle: el["title"]!,
+              displaySubtitle: el["author"]!));
     }).toList());
+
     // audioPlayer.sequenceStream.listen((event) {
     // print(audioPlayer.sequence?.first.tag);
     // print(audioPlayer.sequenceState?.effectiveSequence.first.sequence);
