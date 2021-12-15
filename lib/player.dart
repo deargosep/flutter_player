@@ -47,7 +47,7 @@ class _PlayerState extends State<Player> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               InkWell(
-                  onTap: context.read<PlayState>().hasPrev ? _onPrev : null,
+                  onTap: _onPrev,
                   child: Container(
                       color: Colors.white.withOpacity(
                           context.read<PlayState>().hasPrev ? 1.0 : 0.5),
@@ -57,7 +57,7 @@ class _PlayerState extends State<Player> {
                   child:
                       Icon(isPlaying == true ? Icons.pause : Icons.play_arrow)),
               InkWell(
-                  onTap: context.read<PlayState>().hasNext ? _onNext : null,
+                  onTap: _onNext,
                   child: Container(
                       color: Colors.white.withOpacity(
                           context.read<PlayState>().hasNext ? 1.0 : 0.5),

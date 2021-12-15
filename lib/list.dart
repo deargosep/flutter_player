@@ -53,8 +53,14 @@ class _TrackState extends State<Track> {
     final playingStream = context.read<PlayState>().audioPlayer.playingStream;
     playingStream.listen((event) {
       setState(() {
-        if (context.read<PlayState>().tracks[widget.index]["assetOrUrl"]! ==
-                context.read<PlayState>().currentAudio &&
+        if (context.read<PlayState>().tracks[widget.index]["title"]! ==
+                context
+                    .read<PlayState>()
+                    .audioPlayer
+                    .sequenceState
+                    ?.currentSource
+                    ?.tag
+                    .title! &&
             event)
           isPlaying = true;
         else

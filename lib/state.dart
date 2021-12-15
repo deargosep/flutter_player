@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'dart:convert';
 import 'list.dart';
 
@@ -87,13 +88,21 @@ class PlayState with ChangeNotifier {
   void _setInitialPlaylist() async {
     _playlist = ConcatenatingAudioSource(
         children: tracks.map((el) {
-      return AudioSource.uri(Uri.parse(el["assetOrUrl"]!), tag: el["title"]!);
+      return ClippingAudioSource(
+          child: AudioSource.uri(Uri.parse(el["assetOrUrl"]!)),
+          tag: MediaItem(
+            id: el["assetOrUrl"]!,
+            // album: "Science Friday",
+            title: el["title"]!,
+            // artUri: Uri.parse(
+            //     "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
+          ));
     }).toList());
-    audioPlayer.sequenceStream.listen((event) {
-      print(audioPlayer.sequence?.first.tag);
-      print(audioPlayer.sequenceState?.effectiveSequence.first.sequence);
-      _currentTitle = audioPlayer.sequence?.first.tag ?? "";
-    });
+    // audioPlayer.sequenceStream.listen((event) {
+    // print(audioPlayer.sequence?.first.tag);
+    // print(audioPlayer.sequenceState?.effectiveSequence.first.sequence);
+    // _currentTitle = audioPlayer.sequence?.first.tag ?? "";
+    // });
     // Timer(Duration(seconds: 4), () {
     // print(audioPlayer.sequenceState?.currentSource!);
     // });
