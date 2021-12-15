@@ -42,7 +42,9 @@ class _PlayerState extends State<Player> {
     }
 
     return Container(
-      height: 100,
+      color: Colors.white,
+      height: 150,
+      padding: EdgeInsets.all(40),
       child: Column(
         children: [
           Seeker(),
