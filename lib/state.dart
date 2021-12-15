@@ -55,6 +55,7 @@ class PlayState with ChangeNotifier {
 
   PlayState() {
     _setInitialPlaylist();
+    audioPlayer.setLoopMode(LoopMode.all);
   }
 
   List get tracks => _tracks;
