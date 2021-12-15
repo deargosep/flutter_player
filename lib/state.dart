@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'list.dart';
 
@@ -29,33 +31,33 @@ class PlayState with ChangeNotifier {
   String get currentAudio => _currentAudio;
   String get currentTitle => _currentTitle;
   int get lastPosition => _lastPosition;
-
-  // final List<IndexedAudioSource> sequence;
-  // final int currentIndex;
-  // final List<int> shuffleIndices;
-  // final bool shuffleModeEnabled;
-  // final LoopMode loopMode;
-  //
-  // IndexedAudioSource? get currentSource =>
+  List _tracks = [
+    {
+      "title": "THANK YOU MY TWILIGHT",
+      "author": "flcl",
+      "assetOrUrl":
+          "https://deargosep.github.io/mediastorage/flcl%20progressive%20thank%20you%20my%20twilight.m4a"
+    },
+    {
+      "title": "basic space",
+      "author": "xx",
+      "assetOrUrl":
+          "https://dl4s1.galamp3.com/aHR0cDovL2YubXAzcG9pc2submV0L21wMy8wMDEvNzk1LzEyNi8xNzk1MTI2Lm1wMz90aXRsZT1UaGUreHgrLStCYXNpYytTcGFjZSslMjhnYWxhbXAzLmNvbSUyOS5tcDM="
+    },
+    {
+      "title": "white christmas",
+      "author": "dandelion hands",
+      "assetOrUrl":
+          "https://deargosep.github.io/mediastorage/white_christmas.mp3"
+    }
+  ];
+  // List _tracks = [];
 
   PlayState() {
     _setInitialPlaylist();
   }
 
-  List<Map<String, String>> get tracks => [
-        {
-          "title": "THANK YOU MY TWILIGHT",
-          "author": "flcl",
-          "assetOrUrl":
-              "https://deargosep.github.io/mediastorage/flcl%20progressive%20thank%20you%20my%20twilight.m4a"
-        },
-        {
-          "title": "basic space",
-          "author": "xx",
-          "assetOrUrl":
-              "https://dl4s1.galamp3.com/aHR0cDovL2YubXAzcG9pc2submV0L21wMy8wMDEvNzk1LzEyNi8xNzk1MTI2Lm1wMz90aXRsZT1UaGUreHgrLStCYXNpYytTcGFjZSslMjhnYWxhbXAzLmNvbSUyOS5tcDM="
-        }
-      ];
+  List get tracks => _tracks;
 
   void play(String assetOrUrl, bool? newPlay) async {
     if (assetOrUrl[0] == "/") {
@@ -86,7 +88,13 @@ class PlayState with ChangeNotifier {
     notifyListeners();
   }
 
+  void add(object) async {
+    _playlist.add(object);
+    _setPlaylist();
+  }
+
   void _setInitialPlaylist() async {
+    // _tracks = await _readJson();
     _playlist = ConcatenatingAudioSource(
         children: tracks.map((el) {
       return ClippingAudioSource(
@@ -98,24 +106,10 @@ class PlayState with ChangeNotifier {
               displaySubtitle: el["author"]!));
     }).toList());
 
-    // audioPlayer.sequenceStream.listen((event) {
-    // print(audioPlayer.sequence?.first.tag);
-    // print(audioPlayer.sequenceState?.effectiveSequence.first.sequence);
-    // _currentTitle = audioPlayer.sequence?.first.tag ?? "";
-    // });
-    // Timer(Duration(seconds: 4), () {
-    // print(audioPlayer.sequenceState?.currentSource!);
-    // });
-    // print(tracks.map((el) {
-    //   return AudioSource.uri(Uri.parse(el["assetOrUrl"]!), tag: el["title"]!);
-    // }).toList()[0]);
-    // for (var i = 0; i < tracks.length; i++) {
-    //   print(AudioSource.uri(Uri.parse(tracks[i]["assetOrUrl"]!),
-    //           tag: tracks[i]["title"]!)
-    //       .tag);
-    // }
-    // _playlist.addAll();
+    await audioPlayer.setAudioSource(_playlist);
+  }
 
+  void _setPlaylist() async {
     await audioPlayer.setAudioSource(_playlist);
   }
 }

@@ -53,20 +53,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _init() async {
-      // Inform the operating system of our app's audio attributes etc.
-      // We pick a reasonable default for an app that plays speech.
-
-      // Try to load audio from a source and catch any errors.
-      try {
-        await context.read<PlayState>().audioPlayer.setAudioSource(
-            AudioSource.uri(Uri.parse(
-                "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")));
-      } catch (e) {
-        print("Error loading audio source: $e");
-      }
-    }
-
     return const MaterialApp(
       home: MyApp(),
     );
