@@ -94,6 +94,11 @@ class PlayState with ChangeNotifier {
     _setPlaylist();
   }
 
+  void remove(index) async {
+    await _playlist.removeAt(index);
+    _setPlaylist();
+  }
+
   void _setInitialPlaylist() async {
     // _tracks = await _readJson();
     _playlist = ConcatenatingAudioSource(

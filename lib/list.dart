@@ -130,31 +130,39 @@ class _MusicListState extends State<MusicList> {
           });
     }
 
+    void _onReorder(currIndex, newIndex) {
+      if (currIndex < newIndex) newIndex--;
+      context.read<PlayState>().playlist.move(currIndex, newIndex);
+    }
+
+    // return Scaffold(
+    //   floatingActionButton: FloatingActionButton(
+    //     onPressed: () {
+    //       _showAddDialog();
+    //     },
+    //     child: Icon(Icons.add),
+    //   ),
     return Expanded(
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            _showAddDialog();
-          },
-          child: Icon(Icons.add),
-        ),
-        body: StreamBuilder<SequenceState?>(
-            stream: context.read<PlayState>().audioPlayer.sequenceStateStream,
-            builder: (context, snapshot) {
-              final state = snapshot.data;
-              final sequence = state?.sequence ?? [];
-              // print(sequence[2]);
-              return ListView(
-                children: [
+      child: StreamBuilder<SequenceState?>(
+          stream: context.read<PlayState>().audioPlayer.sequenceStateStream,
+          builder: (context, snapshot) {
+            final state = snapshot.data;
+            final sequence = state?.sequence ?? [];
+            // print(sequence[2]);
+            return ReorderableListView(
+                onReorder: _onReorder,
+                children: <Widget>[
                   for (var i = 0; i < sequence.length; i++)
-                    Track(index: i, data: sequence)
-                ],
-                // itemBuilder: (BuildContext, int index) {
-                //   print(context.read<PlayState>().tracks);
-                // }),
-              );
-            }),
-      ),
+                    Track(
+                      index: i,
+                      data: sequence,
+                      key: ValueKey(sequence[i].tag.id),
+                    )
+                  // Dismissible(key: ValueKey(sequence[i]), child: Text("${i}"))
+                ]);
+          }
+          // )
+          ),
     );
   }
 }
@@ -162,6 +170,7 @@ class _MusicListState extends State<MusicList> {
 class Track extends StatefulWidget {
   final int index;
   final List data;
+
   const Track({Key? key, required this.index, required this.data})
       : super(key: key);
 
@@ -205,26 +214,35 @@ class _TrackState extends State<Track> {
       context.read<PlayState>().audioPlayer.play();
     }
 
+    void _onDismiss(direction) {
+      context.read<PlayState>().remove(widget.index);
+    }
+
     // print(context.read<PlayState>().audioPlayer.sequenceState?.currentIndex);
 
     return Card(
-        child: InkWell(
-      onTap: _onTap,
-      child: Container(
-          padding: const EdgeInsets.all(30.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Text(widget.data[widget.index].tag.title!),
-                  Text(widget.data[widget.index].tag.displaySubtitle!),
-                ],
-                crossAxisAlignment: CrossAxisAlignment.start,
-              ),
-              isPlaying ? const Icon(Icons.play_arrow) : Container(),
-            ],
-          )),
-    ));
+        key: widget.key,
+        child: Dismissible(
+          onDismissed: _onDismiss,
+          key: widget.key!,
+          child: InkWell(
+            onTap: _onTap,
+            child: Container(
+                padding: const EdgeInsets.all(30.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      children: [
+                        Text(widget.data[widget.index].tag.title!),
+                        Text(widget.data[widget.index].tag.displaySubtitle!),
+                      ],
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    isPlaying ? const Icon(Icons.play_arrow) : Container(),
+                  ],
+                )),
+          ),
+        ));
   }
 }
