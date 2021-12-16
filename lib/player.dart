@@ -43,8 +43,8 @@ class _PlayerState extends State<Player> {
 
     return Container(
       color: Colors.white,
-      height: 150,
-      padding: EdgeInsets.all(40),
+      height: 100,
+      padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: Column(
         children: [
           Seeker(),
