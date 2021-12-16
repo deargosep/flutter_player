@@ -18,6 +18,7 @@ class _PlayerState extends State<Player> {
     final playingStream = context.read<PlayState>().audioPlayer.playingStream;
     playingStream.listen((event) {
       setState(() {
+        if (!mounted) return;
         isPlaying = event;
       });
     });
@@ -42,7 +43,6 @@ class _PlayerState extends State<Player> {
     }
 
     return Container(
-      color: Colors.white,
       height: 100,
       padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: Column(
@@ -54,8 +54,8 @@ class _PlayerState extends State<Player> {
               InkWell(
                   onTap: _onPrev,
                   child: Container(
-                      color: Colors.white.withOpacity(
-                          context.read<PlayState>().hasPrev ? 1.0 : 0.5),
+                      // color: Colors.transparent.withOpacity(
+                      //     context.read<PlayState>().hasPrev ? 1.0 : 0.5),
                       child: Icon(Icons.skip_previous))),
               InkWell(
                   onTap: _onPlay,
@@ -64,8 +64,8 @@ class _PlayerState extends State<Player> {
               InkWell(
                   onTap: _onNext,
                   child: Container(
-                      color: Colors.white.withOpacity(
-                          context.read<PlayState>().hasNext ? 1.0 : 0.5),
+                      // color: Colors.transparent.withOpacity(
+                      //     context.read<PlayState>().hasNext ? 1.0 : 0.5),
                       child: Icon(Icons.skip_next)))
             ],
           ),

@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  carousel_slider:
+    dependency: "direct main"
+    description:
+      name: carousel_slider
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.0"
   characters:
     dependency: transitive
     description:
@@ -170,6 +177,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  id3:
+    dependency: "direct main"
+    description:
+      name: id3
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   js:
     dependency: transitive
     description:
@@ -420,6 +434,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.1"
+  we_slide:
+    dependency: "direct main"
+    description:
+      name: we_slide
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.1"
   win32:
     dependency: transitive
     description:
