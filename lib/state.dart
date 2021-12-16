@@ -91,12 +91,12 @@ class PlayState with ChangeNotifier {
 
   void add(object) async {
     _playlist.add(object);
-    _setPlaylist();
+    // _setPlaylist();
   }
 
   void remove(index) async {
     await _playlist.removeAt(index);
-    _setPlaylist();
+    // _setPlaylist();
   }
 
   void _setInitialPlaylist() async {
