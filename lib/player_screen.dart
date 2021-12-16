@@ -57,7 +57,9 @@ class _ArtworkCarouselState extends State<ArtworkCarousel> {
                   carouselController: carouselController,
                   itemCount: sequence.length,
                   options: CarouselOptions(
-                      height: 600, onPageChanged: _onPageChanged),
+                      height: 600,
+                      initialPage: state?.currentIndex ?? 0,
+                      onPageChanged: _onPageChanged),
                   itemBuilder: (BuildContext context, index, idx) {
                     return ArtworkBox();
                   }),
