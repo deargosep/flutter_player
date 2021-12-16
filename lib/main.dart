@@ -8,7 +8,6 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:we_slide/we_slide.dart';
-import 'package:id3/id3.dart';
 import 'dart:io';
 
 import 'list.dart';
