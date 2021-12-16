@@ -57,7 +57,7 @@ class _ArtworkCarouselState extends State<ArtworkCarousel> {
                   carouselController: carouselController,
                   itemCount: sequence.length,
                   options: CarouselOptions(
-                      height: 600,
+                      height: MediaQuery.of(context).size.height / 1.5,
                       initialPage: state?.currentIndex ?? 0,
                       onPageChanged: _onPageChanged),
                   itemBuilder: (BuildContext context, index, idx) {
