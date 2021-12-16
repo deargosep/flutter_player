@@ -43,7 +43,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   void _init() async {
     final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.speech());
+    await session.configure(AudioSessionConfiguration.music());
     // Listen to errors during playback.
     context.read<PlayState>().audioPlayer.playbackEventStream.listen((event) {},
         onError: (Object e, StackTrace stackTrace) {
