@@ -220,29 +220,30 @@ class _TrackState extends State<Track> {
 
     // print(context.read<PlayState>().audioPlayer.sequenceState?.currentIndex);
 
-    return Card(
+    return Dismissible(
+      onDismissed: _onDismiss,
+      key: widget.key!,
+      child: Card(
         key: widget.key,
-        child: Dismissible(
-          onDismissed: _onDismiss,
-          key: widget.key!,
-          child: InkWell(
-            onTap: _onTap,
-            child: Container(
-                padding: const EdgeInsets.all(30.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        Text(widget.data[widget.index].tag.title!),
-                        Text(widget.data[widget.index].tag.displaySubtitle!),
-                      ],
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                    ),
-                    isPlaying ? const Icon(Icons.play_arrow) : Container(),
-                  ],
-                )),
-          ),
-        ));
+        child: InkWell(
+          onTap: _onTap,
+          child: Container(
+              padding: const EdgeInsets.all(30.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      Text(widget.data[widget.index].tag.title!),
+                      Text(widget.data[widget.index].tag.displaySubtitle!),
+                    ],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                  isPlaying ? const Icon(Icons.play_arrow) : Container(),
+                ],
+              )),
+        ),
+      ),
+    );
   }
 }
