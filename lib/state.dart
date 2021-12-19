@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:convert';
-import 'list.dart';
 
 class FactorySingleton {
   static final FactorySingleton _instance = FactorySingleton._internal();
@@ -20,18 +16,25 @@ class FactorySingleton {
 
 class PlayState with ChangeNotifier {
   String _currentAudio = "";
-  String _currentTitle = "";
-  int _lastPosition = 0;
+  // Stream _loaded;
+  final String _currentTitle = "";
+  final int _lastPosition = 0;
   late ConcatenatingAudioSource _playlist;
+  bool _slider = false;
   var audioPlayer = AudioPlayer();
   ConcatenatingAudioSource get playlist => _playlist;
   bool get hasNext => audioPlayer.hasNext;
   bool get hasPrev => audioPlayer.hasPrevious;
-  bool get playing => audioPlayer.playerState.playing;
+  // bool get playing => audioPlayer.playerState.playing;
   String get currentAudio => _currentAudio;
   String get currentTitle => _currentTitle;
   int get lastPosition => _lastPosition;
-  List _tracks = [
+  bool get slider => _slider;
+  set slider(bool val) => _slider = val;
+  // bool get loaded => _loaded;
+  StreamController _loadedController = new StreamController.broadcast();
+  Stream get loaded => _loadedController.stream;
+  final List _tracks = [
     {
       "title": "THANK YOU MY TWILIGHT",
       "author": "flcl",
@@ -53,14 +56,20 @@ class PlayState with ChangeNotifier {
   ];
   // List _tracks = [];
 
-  PlayState() {
+  void _init() {
     _setInitialPlaylist();
     audioPlayer.setLoopMode(LoopMode.all);
+    notifyListeners();
   }
+
+  get init => _init;
+
+  // PlayState() {
+  //   }
 
   List get tracks => _tracks;
 
-  void play(String assetOrUrl, bool? newPlay) async {
+  /*void play(String assetOrUrl, bool? newPlay) async {
     if (assetOrUrl[0] == "/") {
       if (assetOrUrl == _currentAudio) {
         audioPlayer.play();
@@ -87,19 +96,23 @@ class PlayState with ChangeNotifier {
       audioPlayer.play();
     }
     notifyListeners();
-  }
+  }*/
 
   void add(object) async {
     _playlist.add(object);
     // _setPlaylist();
+    notifyListeners();
   }
 
   void remove(index) async {
     await _playlist.removeAt(index);
     // _setPlaylist();
+    notifyListeners();
   }
 
   void _setInitialPlaylist() async {
+    // _loaded = false;
+    _loadedController.add(false);
     // _tracks = await _readJson();
     _playlist = ConcatenatingAudioSource(
         children: tracks.map((el) {
@@ -112,10 +125,8 @@ class PlayState with ChangeNotifier {
               displaySubtitle: el["author"]!));
     }).toList());
 
-    await audioPlayer.setAudioSource(_playlist);
-  }
-
-  void _setPlaylist() async {
-    await audioPlayer.setAudioSource(_playlist);
+    await audioPlayer.setAudioSource(_playlist, preload: true);
+    _loadedController.add(true);
+    notifyListeners();
   }
 }

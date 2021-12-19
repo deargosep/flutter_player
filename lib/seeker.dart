@@ -42,7 +42,7 @@ class _SeekerState extends State<Seeker> {
           // context.read<PlayState>().audioPlayer.positionStream
           total: Duration(seconds: duration ?? 0),
           onSeek: (value) {
-            if (context.read<PlayState>().playing) {
+            if (context.read<PlayState>().audioPlayer.playing) {
               context
                   .read<PlayState>()
                   .audioPlayer

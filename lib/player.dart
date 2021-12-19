@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_player/seeker.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
 import 'state.dart';
@@ -12,16 +13,16 @@ class Player extends StatefulWidget {
 }
 
 class _PlayerState extends State<Player> {
-  bool isPlaying = false;
+  // bool isPlaying = false;
   @override
   Widget build(BuildContext context) {
-    final playingStream = context.read<PlayState>().audioPlayer.playingStream;
-    playingStream.listen((event) {
-      setState(() {
-        if (!mounted) return;
-        isPlaying = event;
-      });
-    });
+    // final playingStream = context.read<PlayState>().audioPlayer.playingStream;
+    // playingStream.listen((event) {
+    //   if (!mounted) return;
+    //   setState(() {
+    //     isPlaying = event;
+    //   });
+    // });
     // context.read<PlayState>().audioPlayer.playingStream.listen((event) {
     //   print(event);
     // });
@@ -43,33 +44,57 @@ class _PlayerState extends State<Player> {
     }
 
     return Container(
-      height: 100,
-      padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-      child: Column(
-        children: [
-          Seeker(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              InkWell(
-                  onTap: _onPrev,
-                  child: Container(
-                      // color: Colors.transparent.withOpacity(
-                      //     context.read<PlayState>().hasPrev ? 1.0 : 0.5),
-                      child: Icon(Icons.skip_previous))),
-              InkWell(
-                  onTap: _onPlay,
-                  child:
-                      Icon(isPlaying == true ? Icons.pause : Icons.play_arrow)),
-              InkWell(
-                  onTap: _onNext,
-                  child: Container(
-                      // color: Colors.transparent.withOpacity(
-                      //     context.read<PlayState>().hasNext ? 1.0 : 0.5),
-                      child: Icon(Icons.skip_next)))
-            ],
-          ),
-        ],
+      color: Colors.greenAccent,
+      child: StreamBuilder(
+        stream: context.read<PlayState>().audioPlayer.playingStream,
+        builder: (context, snapshot) {
+          final statePlaying = snapshot.data;
+          return StreamBuilder<SequenceState?>(
+              stream: context.read<PlayState>().audioPlayer.sequenceStateStream,
+              builder: (context, snapshotSequence) {
+                final stateSequence = snapshotSequence.data;
+                return Container(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    child: Column(
+                      children: [
+                        Text(
+                          stateSequence?.currentSource?.tag.title ?? "",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                            stateSequence?.currentSource?.tag.displaySubtitle ??
+                                ""),
+                        SizedBox(height: 20),
+                        const Seeker(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            InkWell(
+                                onTap: _onPrev,
+                                child: const Icon(
+                                  Icons.skip_previous,
+                                  size: 40,
+                                )),
+                            InkWell(
+                                onTap: _onPlay,
+                                child: Icon(
+                                  statePlaying == true
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  size: 50,
+                                )),
+                            InkWell(
+                                onTap: _onNext,
+                                child: const Icon(
+                                  Icons.skip_next,
+                                  size: 40,
+                                ))
+                          ],
+                        ),
+                      ],
+                    ));
+              });
+        },
       ),
     );
   }

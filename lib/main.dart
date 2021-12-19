@@ -6,9 +6,8 @@ import 'package:flutter_player/player_screen.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:we_slide/we_slide.dart';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'list.dart';
 import 'player.dart';
@@ -30,42 +29,6 @@ Future<void> main() async {
   ));
 }
 
-// void main() {
-//   runApp(Test());
-// }
-
-class Test extends StatelessWidget {
-  const Test({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final _colorScheme = Theme.of(context).colorScheme;
-    final double _panelMinSize = 130.0;
-    final double _panelMaxSize =
-        WidgetsBinding.instance?.window.physicalSize.height as double;
-    final _controller = WeSlideController();
-    return MaterialApp(
-        home: Scaffold(
-            backgroundColor: Colors.black,
-            body: WeSlide(
-                panelMinSize: _panelMinSize,
-                panelMaxSize: _panelMaxSize,
-                body: Container(
-                  color: _colorScheme.background,
-                  child: Center(child: Text("This is the body 💪")),
-                ),
-                panel: Container(
-                  color: _colorScheme.primary,
-                  child: Center(child: Text("This is the panel 😊")),
-                ),
-                panelHeader: Container(
-                  height: _panelMinSize,
-                  color: _colorScheme.secondary,
-                  child: Center(child: Text("Slide to Up ☝️")),
-                ))));
-  }
-}
-
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
 
@@ -81,17 +44,20 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     //   statusBarColor: Colors.black,
     // ));
-    _init();
+    _init(context);
   }
 
-  void _init() async {
+  void _init(BuildContext context) async {
     final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.music());
+    await session.configure(const AudioSessionConfiguration.music());
     // Listen to errors during playback.
-    context.read<PlayState>().audioPlayer.playbackEventStream.listen((event) {},
-        onError: (Object e, StackTrace stackTrace) {
-      print('A stream error occurred: $e');
-    });
+    // context.read<PlayState>().audioPlayer.playbackEventStream.listen((event) {},
+    //     onError: (Object e, StackTrace stackTrace) {
+    //   if (kDebugMode) {
+    //     print('A stream error occurred: $e');
+    //   }
+    // });
+    context.read<PlayState>().init();
   }
 
   @override
@@ -112,12 +78,17 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var _paths;
   String _fileName = "";
-  var _userAborted;
+  final weSlideController = WeSlideController();
+  // var _userAborted;
+  void initState() {
+    super.initState();
+    context.read<PlayState>().slider = weSlideController.isOpened;
+  }
 
   @override
   Widget build(BuildContext context) {
-    var myClass = context.read<PlayState>().playing;
-    void _addTrack({uri, title, author, bytes}) {
+    // var myClass = context.read<PlayState>().playing;
+    void _addTrack({uri, title, author}) {
 //       if (bytes != null) {
 //         MP3Instance mp3instance = new MP3Instance(bytes);
 //
@@ -186,22 +157,22 @@ class _MyAppState extends State<MyApp> {
             }
 
             return AlertDialog(
-              title: Text('Add a track'),
+              title: const Text('Add a track'),
               content: Form(
                   child: SizedBox(
                 height: 180,
                 child: Column(
                   children: [
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'URL'),
+                      decoration: const InputDecoration(labelText: 'URL'),
                       controller: urlController,
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Title'),
+                      decoration: const InputDecoration(labelText: 'Title'),
                       controller: titleController,
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Author'),
+                      decoration: const InputDecoration(labelText: 'Author'),
                       controller: authorController,
                     )
                   ],
@@ -212,12 +183,12 @@ class _MyAppState extends State<MyApp> {
                     onPressed: () {
                       _dismissDialog();
                     },
-                    child: Text('Cancel')),
+                    child: const Text('Cancel')),
                 TextButton(
                     onPressed: () {
                       _submit();
                     },
-                    child: Text('Add')),
+                    child: const Text('Add')),
               ],
             );
           });
@@ -231,28 +202,34 @@ class _MyAppState extends State<MyApp> {
             ?.files;
         // print(_paths[0].path);
       } on PlatformException catch (e) {
-        print('Unsupported operation' + e.toString());
+        if (kDebugMode) {
+          print('Unsupported operation' + e.toString());
+        }
       } catch (e) {
-        print(e.toString());
+        if (kDebugMode) {
+          print(e.toString());
+        }
       }
       if (!mounted) return;
       setState(() {
         _fileName =
             _paths != null ? _paths!.map((e) => e.name).toString() : '...';
-        _userAborted = _paths == null;
+        // _userAborted = _paths == null;
       });
     }
 
     void _add() async {
       _pickFiles();
       var values = _fileName.split("-");
-      var bytes = File(_paths[0].path).readAsBytesSync();
-      print(values);
+      // var bytes = File(_paths ?? .path).readAsBytesSync();
+      if (kDebugMode) {
+        print(values);
+      }
       _addTrack(
-          title: values[0],
-          author: values.length > 1 ? values[1] : "",
-          uri: _paths[0].path,
-          bytes: bytes);
+        title: values[0],
+        author: values.length > 1 ? values[1] : "",
+        uri: _paths[0].path,
+      );
       _dismissDialog();
       // var fileP = FilePick();
       // var result = fileP.pickFile();
@@ -264,23 +241,23 @@ class _MyAppState extends State<MyApp> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text('Add a track'),
-              content: Text("Want to add a track to your playlist?"),
+              title: const Text('Add a track'),
+              content: const Text("Want to add a track to your playlist?"),
               actions: <Widget>[
                 TextButton(
                     onPressed: () {
                       _dismissDialog();
                     },
-                    child: Text('Cancel')),
+                    child: const Text('Cancel')),
                 TextButton(
                   onPressed: _add,
-                  child: Text('Add'),
+                  child: const Text('Add'),
                 ),
                 TextButton(
                   onPressed: () {
                     _showURLDialog();
                   },
-                  child: Text('Add by URL'),
+                  child: const Text('Add by URL'),
                 )
               ],
             );
@@ -289,26 +266,31 @@ class _MyAppState extends State<MyApp> {
 
     return Scaffold(
       body: WeSlide(
-          panelMaxSize:
-              (WidgetsBinding.instance?.window.physicalSize.height ?? 0) / 2,
+          controller: weSlideController,
+          panelMaxSize: MediaQuery.of(context).size.height,
           panelMinSize: Responsive().getResponsiveValue(
-              forShortScreen:
-                  (WidgetsBinding.instance?.window.physicalSize.height ?? 0) /
-                      16,
-              forLargeScreen:
-                  (WidgetsBinding.instance?.window.physicalSize.height ?? 0) /
-                      19,
-              forMediumScreen:
-                  (WidgetsBinding.instance?.window.physicalSize.height ?? 0) /
-                      8,
-              forMobLandScapeMode:
-                  (WidgetsBinding.instance?.window.physicalSize.height ?? 0) /
-                      2,
+              forShortScreen: MediaQuery.of(context).size.height / 4,
+              // forLargeScreen:
+              //     (WidgetsBinding.instance?.window.physicalSize.height ?? 0) /
+              //         19,
+              // forMediumScreen:
+              //     (WidgetsBinding.instance?.window.physicalSize.height ?? 0) /
+              //         8,
+              forMobLandScapeMode: MediaQuery.of(context).size.height / 2,
               context: context),
           // (WidgetsBinding.instance?.window.physicalSize.height ?? 0) / 15,
           backgroundColor: Colors.white24,
-          panel: PlayerScreen(),
-          panelHeader: Player(),
+          panel: PlayerScreen(isOpened: weSlideController.isOpened),
+          panelHeader: Container(
+            color: Colors.greenAccent,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(Icons.expand_less),
+                const Player(),
+              ],
+            ),
+          ),
           body: Scaffold(
               floatingActionButton: Padding(
                 padding: const EdgeInsets.only(top: 200.0),
@@ -316,13 +298,20 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () {
                     _showAddDialog();
                   },
-                  child: Icon(Icons.add),
+                  child: const Icon(Icons.add),
                 ),
               ),
               appBar: AppBar(title: const Text("Player")),
-              body: MusicList())
+              body: const MusicList())
           // ),
           ),
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty('_paths', _paths));
+    properties.add(DiagnosticsProperty('_paths', _paths));
   }
 }

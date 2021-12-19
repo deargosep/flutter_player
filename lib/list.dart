@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'state.dart';
+import 'package:flutter/foundation.dart';
 
 // class Track {
 //   String title = '';
@@ -42,24 +42,28 @@ class _MusicListState extends State<MusicList> {
     //     },
     //     child: Icon(Icons.add),
     //   ),
-    return StreamBuilder<SequenceState?>(
-        stream: context.read<PlayState>().audioPlayer.sequenceStateStream,
-        builder: (context, snapshot) {
-          final state = snapshot.data;
-          final sequence = state?.sequence ?? [];
-          // print(sequence[2]);
-          return ReorderableListView(onReorder: _onReorder, children: <Widget>[
-            for (var i = 0; i < sequence.length; i++)
-              Track(
-                index: i,
-                data: sequence,
-                key: ValueKey(sequence[i].tag.id),
-              )
-            // Dismissible(key: ValueKey(sequence[i]), child: Text("${i}"))
-          ]);
-        }
-        // )
-        );
+    return StreamBuilder(
+        stream: context.read<PlayState>().loaded,
+        builder: (context, snapshotL) {
+          return StreamBuilder<SequenceState?>(
+              stream: context.read<PlayState>().audioPlayer.sequenceStateStream,
+              builder: (context, snapshot) {
+                final state = snapshot.data;
+                final sequence = state?.sequence ?? [];
+                // print(sequence[2]);
+                return ReorderableListView(
+                    onReorder: _onReorder,
+                    children: <Widget>[
+                      for (var i = 0; i < sequence.length; i++)
+                        Track(
+                          index: i,
+                          data: sequence,
+                          key: ValueKey(sequence[i].tag.id),
+                        )
+                      // Dismissible(key: ValueKey(sequence[i]), child: Text("${i}"))
+                    ]);
+              });
+        });
   }
 }
 
@@ -84,10 +88,11 @@ class _TrackState extends State<Track> {
       // print(sequence?.currentSource?.tag);
       setState(() {
         if (sequence?.currentSource?.tag.title! ==
-            widget.data[widget.index].tag.title!)
+            widget.data[widget.index].tag.title!) {
           isPlaying = true;
-        else
+        } else {
           isPlaying = false;
+        }
       });
     });
     void _onTap() async {
@@ -102,9 +107,13 @@ class _TrackState extends State<Track> {
           .audioPlayer
           .seek(Duration.zero, index: widget.index);
       // print(sequence?.currentSource?.tag);
-      print("index:${widget.index}");
-      print(
-          "currentIndex: ${context.read<PlayState>().audioPlayer.sequenceState?.currentIndex}");
+      if (kDebugMode) {
+        print("index:${widget.index}");
+      }
+      if (kDebugMode) {
+        print(
+            "currentIndex: ${context.read<PlayState>().audioPlayer.sequenceState?.currentIndex}");
+      }
       // print(
       // "currentSource: ${context.read<PlayState>().audioPlayer.sequenceState?.currentSource?.tag}");
       context.read<PlayState>().audioPlayer.play();
